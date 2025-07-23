@@ -1,11 +1,12 @@
-import { Bool, Num, OpenAPIRoute } from "chanfana";
+import { Num, OpenAPIRoute } from "chanfana";
 import { z } from "zod";
 import { type AppContext } from "../../middleware/prisma-client";
+import { updateRestaurantSchema } from "../../types"; // Assuming this is your restaurant schema
 
-export class RestaurantDelete extends OpenAPIRoute {
+export class RestaurantFetch extends OpenAPIRoute {
     schema = {
         tags: ["Restaurant"],
-        summary: "Delete Restaurant by ID",
+        summary: "Fetch Restaurant by ID",
         request: {
             params: z.object({
                 id: Num(),
@@ -13,12 +14,12 @@ export class RestaurantDelete extends OpenAPIRoute {
         },
         responses: {
             "200": {
-                description: "Successfully deleted",
+                description: "Returns the Restaurant",
                 content: {
                     "application/json": {
                         schema: z.object({
-                            success: Bool(),
-                            message: z.string(),
+                            success: z.boolean(),
+                            restaurant: updateRestaurantSchema,
                         }),
                     },
                 },
@@ -28,7 +29,7 @@ export class RestaurantDelete extends OpenAPIRoute {
                 content: {
                     "application/json": {
                         schema: z.object({
-                            success: Bool(),
+                            success: z.literal(false),
                             message: z.string(),
                         }),
                     },
@@ -58,19 +59,15 @@ export class RestaurantDelete extends OpenAPIRoute {
                 );
             }
 
-            await prisma.restaurant.delete({
-                where: { id },
-            });
-
             return {
                 success: true,
-                message: "Restaurant deleted successfully",
+                restaurant,
             };
         } catch (error) {
-            console.error("Error deleting restaurant:", error);
+            console.error("Error fetching restaurant:", error);
             return c.json(
                 {
-                    error: "Failed to delete restaurant",
+                    error: "Failed to fetch restaurant",
                     detail: error instanceof Error ? error.message : String(error),
                 },
                 500

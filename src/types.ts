@@ -23,6 +23,7 @@ export const createRestaurantSchema = z.object({
   location: z.string().min(1, "Location is required").max(255),
   phone: z.string().optional(),
   email: z.string().email().optional().or(z.literal("")),
+  password: z.string(),
   opening_hours: z.string().optional(),
   status: statusSchema.optional(),
 });
@@ -41,12 +42,12 @@ export const createUserSchema = z.object({
   role: z.enum(['superadmin', 'admin', 'waiter', 'chef', 'manager']),
   name: z.string().min(1, "Name is required").max(255),
   email: z.string().email("Invalid email format"),
-  passwordHash: z.string().min(1, "Password hash is required"),
+  // passwordHash: z.string().min(1, "Password hash is required"),
   phone: z.string().optional(),
   status: statusSchema.optional(),
 });
 
-export const updateUserSchema = createUserSchema.partial().omit({ passwordHash: true });
+export const updateUserSchema = createUserSchema.partial()
 
 export const userSchema = createUserSchema.extend({
   id: idSchema,
@@ -261,7 +262,7 @@ export const orderWithItemsSchema = orderSchema.extend({
     menuItem: menuItemSchema.optional(),
   })).optional(),
   table: tableSchema.optional(),
-  user: userSchema.omit({ passwordHash: true }).optional(),
+  user: userSchema.optional(),
 });
 
 export const menuItemWithCategorySchema = menuItemSchema.extend({

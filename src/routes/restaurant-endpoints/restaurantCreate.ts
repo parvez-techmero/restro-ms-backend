@@ -14,6 +14,7 @@ export class RestaurantCreate extends OpenAPIRoute {
                         schema: createRestaurantSchema,
                     },
                 },
+                // required: true,
             },
         },
         responses: {
@@ -39,19 +40,12 @@ export class RestaurantCreate extends OpenAPIRoute {
         // Get validated data
         const { body } = await this.getValidatedData<typeof this.schema>();
         //  const data = await c.req.valid(schema);
+          // Helper function to ensure proper typing
 
-        console.log(body, "ad");
+        // const data = await c.req.json();
         const prisma = c.get('prisma')
-
         const restaurant = await prisma.restaurant.create({
-            data: {
-                name: body.name,
-                location: body.location,
-                phone: body.phone,
-                email: body.email,
-                opening_hours: body.opening_hours,
-                status: body.status,
-            }
+            data:body
         })
 
 

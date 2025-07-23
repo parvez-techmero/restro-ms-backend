@@ -13,13 +13,13 @@ export class RestaurantList extends OpenAPIRoute {
 				content: {
 					"application/json": {
 						schema: z.object({
-							series: z.object({
+							// series: z.object({
 								success: Bool(),
-								result: z.object({
-									tasks: restaurantSchema.array(),
-								}),
+								// result: z.object({
+									data: restaurantSchema.array(),
+								// }),
 							}),
-						}),
+						// }),
 					},
 				},
 			},
@@ -29,14 +29,24 @@ export class RestaurantList extends OpenAPIRoute {
 	async handle(c: AppContext) {
 		// Get validated data
 		// const data = await this.getValidatedData<typeof this.schema>();
-        const prisma = c.get('prisma')
-        const restaurant = await prisma.restaurant.findMany()
+		const prisma = c.get('prisma')
+		try {
+			const restaurant = await prisma.restaurant.findMany()
 
-		// Implement your own object list here
+			return {
+				success: true,
+				data: restaurant
+			};
+		} catch (err) {
+			console.error("Error fetching orders:", err)
 
-		return {
-			success: true,
-            data: restaurant
-		};
+			return c.json(
+				{
+					error: 'Failed to fetch orders',
+					detail: err instanceof Error ? err.message : String(err),
+				},
+				500
+			)
+		}
 	}
 }

@@ -4,7 +4,8 @@ CREATE TABLE "Restaurant" (
     "name" TEXT NOT NULL,
     "location" TEXT NOT NULL,
     "phone" TEXT,
-    "email" TEXT,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
     "opening_hours" TEXT,
     "status" TEXT NOT NULL DEFAULT 'active',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -14,19 +15,16 @@ CREATE TABLE "Restaurant" (
 );
 
 -- CreateTable
-CREATE TABLE "User" (
+CREATE TABLE "Customer" (
     "id" SERIAL NOT NULL,
     "restaurantId" INTEGER NOT NULL,
-    "role" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "passwordHash" TEXT NOT NULL,
     "phone" TEXT,
-    "status" TEXT NOT NULL DEFAULT 'active',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Customer_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -48,10 +46,15 @@ CREATE TABLE "MenuItem" (
     "restaurantId" INTEGER NOT NULL,
     "categoryId" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
-    "description" TEXT,
     "price" DECIMAL(10,2) NOT NULL,
+    "description" TEXT,
+    "ingredients" TEXT,
+    "servesPeople" TEXT,
+    "spiceLevel" TEXT,
+    "allergens" TEXT,
     "imageUrl" TEXT,
     "isAvailable" BOOLEAN NOT NULL DEFAULT true,
+    "similarItems" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -93,8 +96,7 @@ CREATE TABLE "Order" (
     "id" SERIAL NOT NULL,
     "restaurantId" INTEGER NOT NULL,
     "tableId" INTEGER,
-    "userId" INTEGER NOT NULL,
-    "customerName" TEXT,
+    "customerId" INTEGER NOT NULL,
     "orderType" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'pending',
     "totalAmount" DECIMAL(10,2) NOT NULL,
@@ -121,7 +123,7 @@ CREATE TABLE "OrderItem" (
 -- CreateTable
 CREATE TABLE "ActivityLog" (
     "id" SERIAL NOT NULL,
-    "userId" INTEGER NOT NULL,
+    "customerId" INTEGER NOT NULL,
     "restaurantId" INTEGER NOT NULL,
     "actionType" TEXT NOT NULL,
     "actionData" TEXT,
@@ -131,10 +133,10 @@ CREATE TABLE "ActivityLog" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE UNIQUE INDEX "Customer_email_key" ON "Customer"("email");
 
 -- AddForeignKey
-ALTER TABLE "User" ADD CONSTRAINT "User_restaurantId_fkey" FOREIGN KEY ("restaurantId") REFERENCES "Restaurant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Customer" ADD CONSTRAINT "Customer_restaurantId_fkey" FOREIGN KEY ("restaurantId") REFERENCES "Restaurant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Category" ADD CONSTRAINT "Category_restaurantId_fkey" FOREIGN KEY ("restaurantId") REFERENCES "Restaurant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -161,7 +163,7 @@ ALTER TABLE "Order" ADD CONSTRAINT "Order_restaurantId_fkey" FOREIGN KEY ("resta
 ALTER TABLE "Order" ADD CONSTRAINT "Order_tableId_fkey" FOREIGN KEY ("tableId") REFERENCES "Table"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Order" ADD CONSTRAINT "Order_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -170,7 +172,7 @@ ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_orderId_fkey" FOREIGN KEY ("or
 ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_menuItemId_fkey" FOREIGN KEY ("menuItemId") REFERENCES "MenuItem"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ActivityLog" ADD CONSTRAINT "ActivityLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ActivityLog" ADD CONSTRAINT "ActivityLog_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ActivityLog" ADD CONSTRAINT "ActivityLog_restaurantId_fkey" FOREIGN KEY ("restaurantId") REFERENCES "Restaurant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

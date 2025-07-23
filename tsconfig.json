@@ -11,12 +11,13 @@
 		/* Strictness */
 		"noImplicitAny": false,
 		"noImplicitThis": true,
-		"strictNullChecks": false,
+		"strictNullChecks": true,
 		"strict": true,
 		"noUncheckedIndexedAccess": true,
 		/* If NOT transpiling with TypeScript: */
-		"moduleResolution": "Bundler",
-		"module": "es2022",
+		"moduleResolution": "Bundler", // comment if you are want to seed data
+		"module": "es2022", // comment if you are want to seed data
+		// "module": "commonjs", // Uncomment if you are want to seed data
 		"noEmit": true,
 		"lib": ["es2022"],
 		"types": [

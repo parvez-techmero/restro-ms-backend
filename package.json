@@ -8,6 +8,9 @@
     "start": "wrangler dev",
     "cf-typegen": "wrangler types"
   },
+    "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "dependencies": {
     "@prisma/extension-accelerate": "^2.0.2",
     "chanfana": "^2.6.3",
