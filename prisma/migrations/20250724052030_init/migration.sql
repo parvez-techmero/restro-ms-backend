@@ -133,6 +133,9 @@ CREATE TABLE "ActivityLog" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Restaurant_email_key" ON "Restaurant"("email");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Customer_email_key" ON "Customer"("email");
 
 -- AddForeignKey

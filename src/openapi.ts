@@ -6,6 +6,7 @@ import { globalConfig } from "./config/globalConfig";
 import { RestaurantUpdate } from "./routes/restaurant-endpoints/restaurantUpdate";
 import { RestaurantFetch } from "./routes/restaurant-endpoints/restaurantFetch";
 import { RestaurantDelete } from "./routes/restaurant-endpoints/restaurantDelete";
+import { LoginRoute } from "./routes/auth-endpoints/login";
 
 
 export function setUpOpenAPI(app) {
@@ -16,6 +17,9 @@ export function setUpOpenAPI(app) {
         // redoc_url: "/docs",
         
     });
+
+    // Auth 
+    openapi.post(`${globalConfig.baseURL}/login`, LoginRoute);
 
     // Register OpenAPI endpoints
     openapi.get(`${globalConfig.baseURL}/restaurant`, RestaurantList);

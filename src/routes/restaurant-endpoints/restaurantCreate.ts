@@ -2,6 +2,8 @@ import { Bool, OpenAPIRoute } from "chanfana";
 import { z } from "zod";
 import { type AppContext } from "../../middleware/prisma-client";
 import { createRestaurantSchema } from "../../types";
+import bcrypt from "bcryptjs";
+import { Prisma } from '@prisma/client/edge';
 
 export class RestaurantCreate extends OpenAPIRoute {
     schema = {
@@ -23,12 +25,8 @@ export class RestaurantCreate extends OpenAPIRoute {
                 content: {
                     "application/json": {
                         schema: z.object({
-                            series: z.object({
-                                success: Bool(),
-                                // result: z.object({
-                                    restaurant: createRestaurantSchema,
-                                // }),
-                            }),
+                            success: Bool(),
+                            restaurant: createRestaurantSchema,
                         }),
                     },
                 },
@@ -39,22 +37,53 @@ export class RestaurantCreate extends OpenAPIRoute {
     async handle(c: AppContext) {
         // Get validated data
         const { body } = await this.getValidatedData<typeof this.schema>();
-        //  const data = await c.req.valid(schema);
-          // Helper function to ensure proper typing
-
+        const { password } = body
         // const data = await c.req.json();
         const prisma = c.get('prisma')
-        const restaurant = await prisma.restaurant.create({
-            data:body
-        })
 
+        try {
 
-        // Implement your own object insertion here
+            // Hash password
+            const saltRounds = 12;
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        // return the new task
-        return {
-            success: true,
-            restaurant
-        };
+            const restaurant = await prisma.restaurant.create({
+                data: {
+                    ...body,
+                    password: hashedPassword,
+                }
+            })
+
+            // return the new task
+            return c.json({
+                success: true,
+                restaurant
+            });
+        } catch (error: unknown) {
+            if (
+                error &&
+                typeof error === 'object' &&
+                'code' in error &&
+                'meta' in error &&
+                error.code === 'P2002'
+            ) {
+                const prismaError = error as {
+                    code: string;
+                    meta?: {
+                        target?: string[];
+                    };
+                };
+
+                if (prismaError.meta?.target?.includes('email')) {
+                    return c.json(
+                        { error: "Restaurant with this email already exists" },
+                        409
+                    );
+                }
+            }
+
+            console.error("Create restaurant error:", error);
+            return c.json({ error: "Internal server error" }, 500);
+        }
     }
 }

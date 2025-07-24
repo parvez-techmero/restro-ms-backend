@@ -1,12 +1,18 @@
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { globalConfig } from '../src/config/globalConfig'
+import bcrypt from "bcryptjs";
 
-  const prisma = new PrismaClient({
-    datasourceUrl: globalConfig.DATABASE_URL,
-  }).$extends(withAccelerate())
+const prisma = new PrismaClient({
+  datasourceUrl: globalConfig.DATABASE_URL,
+}).$extends(withAccelerate())
 
 async function main() {
+
+  // Hash password
+  const saltRounds = 12;
+  const hashedPassword = await bcrypt.hash("1234", saltRounds);
+  
   // Create one Restaurant
   const restaurant = await prisma.restaurant.create({
     data: {
@@ -14,7 +20,7 @@ async function main() {
       location: "123 Main St, Your City",
       phone: "1234567890",
       email: "info@demoresto.com",
-      password: "1234",
+      password: hashedPassword,
       opening_hours: "10:00-22:00",
     }
   });
@@ -262,23 +268,23 @@ async function main() {
     },
   ]
   await prisma.menuItem.createMany({ data: menuItemsData });
-//   for (const item of menuItemsData) {
-//     await prisma.menuItem.create({
-//       data: {
-//         name: item.name,
-//         price: item.price,
-//         description: item.description,
-//         ingredients: item.ingredients,
-//         servesPeople: item.servesPeople,
-//         spiceLevel: item.spiceLevel,
-//         allergens: item.allergens,
-//         similarItems: item.similarItems,
-//         restaurantId: restaurant.id,
-//         categoryId: item.categoryId,
-//         createdAt: new Date('2025-07-14T06:24:16'),
-//       },
-//     });
-//   }
+  //   for (const item of menuItemsData) {
+  //     await prisma.menuItem.create({
+  //       data: {
+  //         name: item.name,
+  //         price: item.price,
+  //         description: item.description,
+  //         ingredients: item.ingredients,
+  //         servesPeople: item.servesPeople,
+  //         spiceLevel: item.spiceLevel,
+  //         allergens: item.allergens,
+  //         similarItems: item.similarItems,
+  //         restaurantId: restaurant.id,
+  //         categoryId: item.categoryId,
+  //         createdAt: new Date('2025-07-14T06:24:16'),
+  //       },
+  //     });
+  //   }
   console.log('Dummy data seeded successfully!');
 }
 

@@ -3,6 +3,7 @@ import { getPrisma, Env } from "./middleware/prisma-client";
 import { setUpOpenAPI } from "./openapi";
 import { globalConfig } from "./config/globalConfig";
 // import { seeders } from '../prisma/seed'
+import { cors } from 'hono/cors'
 
 // Start a Hono app
 const app = new Hono<Env>();
@@ -12,6 +13,12 @@ app.use("*", getPrisma);
 const openapi = setUpOpenAPI(app);
 // app.route(globalConfig.baseURL, openapi);
 
+app.use('*', async (c, next) => {
+  const middleware = cors({
+    origin: "*",
+  })
+  return middleware(c, next)
+})
 
 
 // You may also register routes for non OpenAPI directly on Hono

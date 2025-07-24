@@ -16,8 +16,8 @@ export class RestaurantUpdate extends OpenAPIRoute {
                 },
             },
             params: z.object({
-				id: Num(),
-			}),
+                id: Num(),
+            }),
         },
 
         responses: {
@@ -38,20 +38,17 @@ export class RestaurantUpdate extends OpenAPIRoute {
     };
 
     async handle(c: AppContext) {
-        // Get validated data
-        console.log("Here");
-        
-        const { body, params } = await this.getValidatedData<typeof this.schema>();
 
-        const { id } = params;  // Get the ID from the path parameters
+        const { body, params } = await this.getValidatedData<typeof this.schema>();
+        const { id } = params;
 
         const prisma = c.get("prisma");
-        try {            
+        try {
             // Try to find the restaurant first
             const restaurant = await prisma.restaurant.findUnique({
                 where: { id },
             });
-    
+
             // If restaurant doesn't exist, return an error
             if (!restaurant) {
                 return {
@@ -59,20 +56,42 @@ export class RestaurantUpdate extends OpenAPIRoute {
                     message: "Restaurant not found",
                 };
             }
-    
+
             // Update the restaurant with the new data
             const updatedRestaurant = await prisma.restaurant.update({
                 where: { id },
                 data: body,
             });
-    
+
             // Return the updated restaurant
-            return {
+            return c.json({
                 success: true,
                 restaurant: updatedRestaurant,
-            };
+            });
         } catch (error) {
-            console.error("Error updating restaurant:", error);
+            if (
+                error &&
+                typeof error === 'object' &&
+                'code' in error &&
+                'meta' in error &&
+                error.code === 'P2002'
+            ) {
+                const prismaError = error as {
+                    code: string;
+                    meta?: {
+                        target?: string[];
+                    };
+                };
+
+                if (prismaError.meta?.target?.includes('email')) {
+                    return c.json(
+                        { error: "Restaurant with this email already exists" },
+                        409
+                    );
+                }
+            }
+
+            console.error("Create restaurant error:", error);
             return c.json(
                 {
                     error: 'Failed to update restaurant',

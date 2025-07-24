@@ -17,12 +17,26 @@ const timestampSchema = z.date();
 const optionalStringSchema = z.string().optional();
 const statusSchema = z.string().default("active");
 
+
+// Login Schemas
+export const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1, "Password is required"),
+});
+
+export const customJWTPayloadSchema = z.object({
+    restaurantId: z.string(),
+    email: z.string(),
+    iat: z.number(),
+    exp: z.number(),
+});
+
 // Restaurant schemas
 export const createRestaurantSchema = z.object({
   name: z.string().min(1, "Restaurant name is required").max(255),
   location: z.string().min(1, "Location is required").max(255),
   phone: z.string().optional(),
-  email: z.string().email().optional().or(z.literal("")),
+  email: z.string().email().or(z.literal("")),
   password: z.string(),
   opening_hours: z.string().optional(),
   status: statusSchema.optional(),
@@ -286,6 +300,9 @@ export const validatePrice = (price: number) =>
   z.number().positive().multipleOf(0.01).parse(price);
 
 // Type exports
+export type LoginInput = z.infer<typeof loginSchema>;
+export type CustomJWTPayload = z.infer<typeof customJWTPayloadSchema>;
+
 export type Restaurant = z.infer<typeof restaurantSchema>;
 export type CreateRestaurant = z.infer<typeof createRestaurantSchema>;
 export type UpdateRestaurant = z.infer<typeof updateRestaurantSchema>;
