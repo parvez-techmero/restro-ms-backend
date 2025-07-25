@@ -64,7 +64,6 @@ export class LoginRoute extends OpenAPIRoute {
             // Initialize Prisma client
             const prisma = c.get('prisma');
 
-            
             try {
                 // Validate user credentials
                 const user = await this.validateUser(email, password, prisma);

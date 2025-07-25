@@ -7,6 +7,7 @@ export class RestaurantList extends OpenAPIRoute {
 	schema = {
 		tags: ["Restaurant"],
 		summary: "List Restaurant",
+		security: [{ bearerAuth: [] }],
 		responses: {
 			"200": {
 				description: "Returns a list of Restaurant",

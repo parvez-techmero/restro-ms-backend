@@ -20,8 +20,8 @@ const statusSchema = z.string().default("active");
 
 // Login Schemas
 export const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1, "Password is required"),
+  email: z.string().email().default('info@demoresto.com'),
+  password: z.string().min(1, "Password is required").default('1234'),
 });
 
 export const customJWTPayloadSchema = z.object({

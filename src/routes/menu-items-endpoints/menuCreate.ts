@@ -1,19 +1,19 @@
 import { Bool, OpenAPIRoute } from "chanfana";
 import { z } from "zod";
 import { type AppContext } from "../../middleware/prisma-client";
-import { createRestaurantSchema } from "../../types";
+import { createMenuItemSchema } from "../../types";
 import bcrypt from "bcryptjs";
 
-export class RestaurantCreate extends OpenAPIRoute {
+export class MenuItemCreate extends OpenAPIRoute {
     schema = {
-        tags: ["Restaurant"],
-        summary: "Create a new Restaurant",
+        tags: ["MenuItem"],
+        summary: "Create a new MenuItem",
         security: [{ bearerAuth: [] }],
         request: {
             body: {
                 content: {
                     "application/json": {
-                        schema: createRestaurantSchema,
+                        schema: createMenuItemSchema,
                     },
                 },
                 // required: true,
@@ -21,12 +21,12 @@ export class RestaurantCreate extends OpenAPIRoute {
         },
         responses: {
             "200": {
-                description: "Returns the created Restaurant",
+                description: "Returns the created MenuItem",
                 content: {
                     "application/json": {
                         schema: z.object({
                             success: Bool(),
-                            restaurant: createRestaurantSchema,
+                            restaurant: createMenuItemSchema,
                         }),
                     },
                 },
@@ -37,27 +37,15 @@ export class RestaurantCreate extends OpenAPIRoute {
     async handle(c: AppContext) {
         // Get validated data
         const { body } = await this.getValidatedData<typeof this.schema>();
-        const { password } = body
         // const data = await c.req.json();
         const prisma = c.get('prisma')
 
         try {
 
-            // Hash password
-            const saltRounds = 12;
-            const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-            const restaurant = await prisma.restaurant.create({
-                data: {
-                    ...body,
-                    password: hashedPassword,
-                }
-            })
-
             // return the new task
             return c.json({
                 success: true,
-                restaurant
+                body
             });
         } catch (error: unknown) {
             if (

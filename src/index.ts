@@ -11,6 +11,7 @@ const app = new Hono<Env>();
 app.use("*", getPrisma);
 // Routes with /api prefix (using route grouping)
 const openapi = setUpOpenAPI(app);
+
 // app.route(globalConfig.baseURL, openapi);
 
 app.use('*', async (c, next) => {

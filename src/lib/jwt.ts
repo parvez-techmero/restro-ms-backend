@@ -2,7 +2,7 @@
 import { SignJWT, jwtVerify, type JWTPayload as JoseJWTPayload } from 'jose';
 
 export interface CustomJWTPayload {
-    restaurantId: string;
+    restaurantId: number;
     email: string;
     iat: number;
     exp: number;
@@ -36,12 +36,12 @@ export async function verifyJWT(token: string, secret: string): Promise<CustomJW
     try {
         const encoder = new TextEncoder();
         const secretKey = encoder.encode(secret);
-
+        
         const { payload } = await jwtVerify(token, secretKey);
         
         // Validate that the payload has our required fields
         if (
-            typeof payload.restaurantId === 'string' &&
+            typeof payload.restaurantId === 'number' &&
             typeof payload.email === 'string' &&
             typeof payload.iat === 'number' &&
             typeof payload.exp === 'number'
@@ -74,7 +74,7 @@ export function extractTokenFromHeader(authHeader: string | null): string | null
 /**
  * Create JWT middleware for protecting routes with Prisma user lookup
  */
-export function createJWTMiddleware(secret: string, prisma) {
+export function authMiddleware1(secret: string, prisma) {
     return async (c: any, next: () => Promise<void>) => {
         const authHeader = c.req.header('Authorization');
         const token = extractTokenFromHeader(authHeader);

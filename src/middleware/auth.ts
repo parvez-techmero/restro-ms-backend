@@ -11,6 +11,7 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
     const parts = authHeader.split(" ");
     const token = parts[1];
 
+
     if (!token) {
         return c.json({ error: "Token missing" }, 401);
     }
@@ -21,5 +22,27 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
     }
 
     c.set("user", payload); // Attach user info to context
+    const prisma = c.get('prisma')
+
+    if (prisma) {
+        try {
+            const restro = await prisma.restaurant.findUnique({
+                where: { id: payload.restaurantId, status : "active" },
+                select: {
+                    id: true,
+                    email: true,
+                    name: true,
+                },
+            });
+
+            if (!restro) {
+                return c.json({ error: 'Restaurant not found' }, 401);
+            }
+
+        } catch (error) {
+            console.error('Error fetching user from database:', error);
+            return c.json({ error: 'Database error' }, 500);
+        }
+    }
     await next();
 };
